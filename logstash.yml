@@ -1,0 +1,94 @@
+---
+- name: Setup and configure Logstash node.
+  become: True
+  hosts: logstash-master
+  tags:
+    - setup
+  tasks:
+    - selinux:
+        policy: targeted
+        state: permissive
+    - include_role: name=apache
+    - copy:
+        # test:test
+        content: test:$apr1$2ad3CwEh$YtzKRpsBc55hTUPTYh8YX0
+        dest: /etc/httpd/htpasswd
+    - include_role: name=elasticsearch
+    - include_role: name=java
+    - include_role: name=logstash
+  vars:
+    es_instance_name: '{{ inventory_hostname }}'
+    es_heap_size: 100m
+    es_config: {
+      node.master: false,
+      node.data: false,
+      node.ingest: false,
+      http.port: 9201,
+      bootstrap.memory_lock: true,
+      network.host: '_local_, _eth1_',
+      discovery.zen.ping.unicast.hosts: '{{ elastic_unicast }}'
+    }
+
+    apache_remove_default_vhost: true
+    apache_packages:
+      - mod_ldap
+    apache_vhosts:
+      - servername: 'localhost'
+        listenport: 9200
+        extra_parameters: |
+                <Proxy *>
+                    Order deny,allow
+                    Deny from All
+                    AuthName 'Elastic Search Authorisation'
+                    AuthType Basic
+                    # File: between machine auth
+                    # LDAP: for user access
+                    AuthBasicProvider file ldap
+                    AuthUserFile '/etc/httpd/htpasswd'
+                    #AuthLDAPUrl 'ldap://192.168.1.1:389/ou=Users,dc=example,dc=com?uid?sub?(&(objectClass=person)(memberof=cn=elastic_stack_user,ou=Groups,dc=example,dc=com))'
+                    Require valid-user
+                    Satisfy any
+                </Proxy>
+                ProxyPreserveHost On
+                ProxyRequests Off
+                ProxyPass / http://localhost:9201/
+                ProxyPassReverse / http://localhost:9201/
+
+    logstash_install_filters: false
+    logstash_monitor_local_syslog: false
+    logstash_ssl: true
+    logstash_ssl_certificate_authority: 'ElasticCA/crt/example_com.ca.crt'
+    logstash_ssl_certificate_file: 'ElasticCA/crt/logstash_example_com.server.crt'
+    logstash_ssl_key_file: 'ElasticCA/key/logstash_example_com.server.key'
+    logstash_install_plugins:
+      - logstash-input-beats
+      - logstash-filter-date
+      - logstash-filter-grok
+      - logstash-filter-json
+      - logstash-filter-mutate
+      - logstash-filter-syslog_pri
+      - logstash-output-elasticsearch
+    logstash_elasticsearch_hosts:
+      - http://localhost:9201
+
+- name: Logstash custom filters.
+  become: True
+  hosts: logstash-master
+  tags:
+      - filters
+  handlers:
+    - include: roles/logstash/handlers/main.yml
+    - include: handlers/main.yml
+  tasks:
+    - name: Create Logstash filters.
+      copy:
+        src: "filters/{{ item }}"
+        dest: "/etc/logstash/conf.d/{{ item }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - 10-syslog.conf
+        - 11-kibana.conf
+      notify:
+        - test logstash

@@ -1,0 +1,78 @@
+---
+- name: Setup and configure Kibana node.
+  become: True
+  hosts: kibana-client
+  tags:
+    - setup
+  tasks:
+    - selinux:
+        policy: targeted
+        state: permissive
+    - include_role: name=apache
+    - copy:
+        # test:test
+        content: test:$apr1$2ad3CwEh$YtzKRpsBc55hTUPTYh8YX0
+        dest: /etc/httpd/htpasswd
+    - include_role: name=elasticsearch
+    - include_role: name=kibana
+  vars:
+    es_instance_name: '{{ inventory_hostname }}'
+    es_heap_size: 100m
+    es_config: {
+      node.master: false,
+      node.data: false,
+      node.ingest: false,
+      http.port: 9201,
+      bootstrap.memory_lock: true,
+      network.host: '_local_, _eth1_',
+      discovery.zen.ping.unicast.hosts: '{{ elastic_unicast }}'
+    }
+
+    apache_remove_default_vhost: true
+    apache_packages:
+      - mod_ldap
+    apache_vhosts:
+      - servername: 'localhost'
+        listenport: 9200
+        extra_parameters: |
+                <Proxy *>
+                    Order deny,allow
+                    Deny from All
+                    AuthName 'Elastic Search Authorisation'
+                    AuthType Basic
+                    # File: between machine auth
+                    # LDAP: for user access
+                    AuthBasicProvider file ldap
+                    AuthUserFile '/etc/httpd/htpasswd'
+                    #AuthLDAPUrl 'ldap://192.168.1.1:389/ou=Users,dc=example,dc=com?uid?sub?(&(objectClass=person)(memberof=cn=elastic_stack_user,ou=Groups,dc=example,dc=com))'
+                    Require valid-user
+                    Satisfy any
+                </Proxy>
+                ProxyPreserveHost On
+                ProxyRequests Off
+                ProxyPass / http://localhost:9201/
+                ProxyPassReverse / http://localhost:9201/
+      - servername: 'localhost'
+        listenport: 5601
+        extra_parameters: |
+                <Proxy *>
+                    Order deny,allow
+                    Deny from All
+                    AuthName 'Kibana Authorisation'
+                    AuthType Basic
+                    # Only LDAP: for user access
+                    AuthBasicProvider file ldap
+                    AuthUserFile '/etc/httpd/htpasswd'
+                    #AuthLDAPUrl 'ldap://192.168.1.1:389/ou=Users,dc=example,dc=com?uid?sub?(&(objectClass=person)(memberof=cn=elastic_stack_user,ou=Groups,dc=example,dc=com))'
+                    Require valid-user
+                    Satisfy any
+                </Proxy>
+                ProxyPreserveHost On
+                ProxyRequests Off
+                ProxyPass / http://localhost:5602/
+                ProxyPassReverse / http://localhost:5602/
+
+    kibana_version: '5.6'
+    kibana_server_port: 5602
+    kibana_elasticsearch_username: 'test'
+    kibana_elasticsearch_password: 'test'

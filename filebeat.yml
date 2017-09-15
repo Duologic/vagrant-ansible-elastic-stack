@@ -1,0 +1,27 @@
+---
+- name: Setup and configure Filebeat.
+  become: True
+  hosts: filebeat-client
+  tasks:
+  - include_role:
+      name: filebeat
+  vars:
+    filebeat_create_config: true
+    filebeat_output_logstash_enabled: true
+    filebeat_output_logstash_hosts:
+          - "{{ filebeat_endpoint }}"
+    filebeat_ssl: true
+    filebeat_ssl_certificate_authority: 'ElasticCA/crt/example_com.ca.crt'
+    filebeat_ssl_certificate_file: 'ElasticCA/crt/filebeat_example_com.server.crt'
+    filebeat_ssl_key_file: 'ElasticCA/key/filebeat_example_com.server.key'
+    filebeat_prospectors:
+      - input_type: log
+        fields:
+          - type: syslog
+        paths:
+          - "/var/log/messages"
+      - input_type: log
+        fields:
+          - type: syslog
+        paths:
+          - "/var/log/cron"

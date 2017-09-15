@@ -1,0 +1,7 @@
+---
+- name: test logstash
+  command: >
+    ./bin/logstash -t -f /etc/logstash/conf.d
+    chdir=/usr/share/logstash
+  notify:
+    - restart logstash

@@ -1,0 +1,10 @@
+# Ansible files
+*.retry
+.vaultpw
+.venv
+
+# Vagrant files
+.vagrant
+
+# Self signed CA
+files/ElasticCA

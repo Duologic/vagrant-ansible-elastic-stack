@@ -1,0 +1,21 @@
+[submodule "roles/elasticsearch"]
+	path = roles/elasticsearch
+	url = git@github.com:elastic/ansible-elasticsearch.git
+[submodule "roles/kibana"]
+	path = roles/kibana
+	url = git@github.com:Duologic/ansible-role-kibana.git
+[submodule "roles/java"]
+	path = roles/java
+	url = git@github.com:geerlingguy/ansible-role-java.git
+[submodule "roles/apache"]
+	path = roles/apache
+	url = git@github.com:Duologic/ansible-role-apache.git
+[submodule "roles/filebeat"]
+	path = roles/filebeat
+	url = git@github.com:Duologic/ansible-role-filebeat.git
+[submodule "roles/logstash"]
+	path = roles/logstash
+	url = git@github.com:Duologic/ansible-role-logstash.git
+[submodule "files/ca-scripts"]
+	path = files/ca-scripts
+	url = git@github.com:fluffle/ca-scripts.git
