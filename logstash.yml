@@ -18,7 +18,8 @@
     - include_role: name=logstash
   vars:
     es_instance_name: '{{ inventory_hostname }}'
-    es_heap_size: 100m
+    es_heap_size: '512m'
+    es_version: '5.6.0'
     es_config: {
       node.master: false,
       node.data: false,

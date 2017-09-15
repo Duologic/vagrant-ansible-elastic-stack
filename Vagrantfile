@@ -18,6 +18,10 @@ Vagrant.configure("2") do |config|
 
     # Logstash client
     config.vm.define "logstash" do |logstash|
+        logstash.vm.provider "virtualbox" do |v|
+            v.memory = 1024
+        end
+        logstash.vm.hostname = "logstash"
         logstash.vm.network "private_network", ip: "192.168.33.8"
         logstash.vm.provision :ansible do |ansible|
             ansible.groups = ansible_groups
@@ -29,6 +33,10 @@ Vagrant.configure("2") do |config|
 
     # Kibana client
     config.vm.define "kibana" do |kibana|
+        kibana.vm.provider "virtualbox" do |v|
+            v.memory = 1024
+        end
+        kibana.vm.hostname = "kibana"
         kibana.vm.network "forwarded_port", guest: 9200, host: 9200, guest_ip: "192.168.33.9"
         kibana.vm.network "forwarded_port", guest: 5601, host: 5601
         kibana.vm.network "private_network", ip: "192.168.33.9"
@@ -43,6 +51,10 @@ Vagrant.configure("2") do |config|
     # Elastic Search nodes
     (0..1).each do |machine_id|
         config.vm.define "elastic#{machine_id}" do |elastic|
+            elastic.vm.provider "virtualbox" do |v|
+                v.memory = 2048
+            end
+            elastic.vm.hostname = "elastic#{machine_id}"
             elastic.vm.network "private_network", ip: "192.168.33.1#{machine_id}"
             if machine_id == 1
                 elastic.vm.provision :ansible do |ansible|
@@ -57,6 +69,7 @@ Vagrant.configure("2") do |config|
 
     # Filebeat client
     config.vm.define "filebeat" do |filebeat|
+        filebeat.vm.hostname = "filebeat"
         filebeat.vm.network "private_network", ip: "192.168.33.7"
         filebeat.vm.provision :ansible do |ansible|
             ansible.groups = ansible_groups

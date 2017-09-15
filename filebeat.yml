@@ -12,8 +12,8 @@
           - "{{ filebeat_endpoint }}"
     filebeat_ssl: true
     filebeat_ssl_certificate_authority: 'ElasticCA/crt/example_com.ca.crt'
-    filebeat_ssl_certificate_file: 'ElasticCA/crt/filebeat_example_com.server.crt'
-    filebeat_ssl_key_file: 'ElasticCA/key/filebeat_example_com.server.key'
+    filebeat_ssl_certificate_file: 'ElasticCA/crt/filebeat_example_com.client.crt'
+    filebeat_ssl_key_file: 'ElasticCA/key/filebeat_example_com.client.key'
     filebeat_prospectors:
       - input_type: log
         fields:
