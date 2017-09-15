@@ -17,11 +17,11 @@
     filebeat_prospectors:
       - input_type: log
         fields:
-          - type: syslog
+          type: syslog
         paths:
           - "/var/log/messages"
       - input_type: log
         fields:
-          - type: syslog
+          type: syslog
         paths:
           - "/var/log/cron"
