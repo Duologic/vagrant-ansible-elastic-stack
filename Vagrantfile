@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     # Logstash client
     config.vm.define "logstash" do |logstash|
         logstash.vm.provider "virtualbox" do |v|
-            v.memory = 1024
+            v.memory = 2048
         end
         logstash.vm.hostname = "logstash"
         logstash.vm.network "private_network", ip: "192.168.33.8"
