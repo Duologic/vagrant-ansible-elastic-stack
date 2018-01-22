@@ -1,8 +1,8 @@
 Vagrant/Ansible Elastic Stack
 =============================
 
-Simply combine a bunch of ansible roles into a deployable [Elastic Stack](https://www.elastic.co/guide/index.html). I'm
-using this as a reference for setting up an Elastic Stack at [Unleashed](https://unleashed.be/).
+Combine a bunch of ansible roles into a deployable [Elastic Stack](https://www.elastic.co/guide/index.html). I'm using
+this as a reference for setting up an Elastic Stack at [Unleashed](https://unleashed.be/).
 
 Disclaimer: This is reference material, not intended to use directly on production. The passwords in here are insecure
 and the HTTP connections to Kibana and Elastic are not secured.
